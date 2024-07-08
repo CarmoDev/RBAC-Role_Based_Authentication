@@ -1,26 +1,24 @@
-import { SignUpUseCase } from './../useCases/SignUpUseCase';
 import { z, ZodError } from 'zod';
 import { IController, IResponse } from '../interfaces/IController';
-import { AccountAlreadyExists } from '../errors/AccountAlreadyExists';
 import { IRequest } from '../interfaces/IRequest';
+import { CreateRoleUseCase } from '../useCases/createRoleUseCase';
+import { RoleAlreadyExists } from '../errors/RoleAlreadyExists';
 
 const schema = z.object({
   name: z.string().min(2),
-  email: z.string().email().min(4),
-  password: z.string().min(8),
-  roleId: z.string().uuid()
+  description: z.string().min(4),
 });
 
 
-export class SignUpController implements IController {
-  constructor(private readonly signUpUseCase: SignUpUseCase) {}
+export class CreateRoleController implements IController {
+  constructor(private readonly createRoleUseCase: CreateRoleUseCase) {}
 
   async handle({body}: IRequest): Promise<IResponse> {
     try {
-      const {email, name, password, roleId } = schema.parse(body);
+      const { name, description } = schema.parse(body);
 
 
-      await this.signUpUseCase.execute({ email, name, password, roleId });
+      await this.createRoleUseCase.execute({ name, description });
 
       return {
         statusCode: 204,
@@ -34,11 +32,11 @@ export class SignUpController implements IController {
         };
       }
 
-      if(error instanceof AccountAlreadyExists) {
+      if(error instanceof RoleAlreadyExists) {
         return  {
           statusCode: 409,
           body: {
-            error: 'This e-mail is already in use.'
+            error: 'This Role already exists.'
           }
         };
       }

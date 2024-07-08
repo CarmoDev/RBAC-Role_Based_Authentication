@@ -32,7 +32,7 @@ export class SignInUseCase {
       throw new InvalidCredentials();
     }
 
-    const accessToken = sign({ sub: account.id, role: account.role }, env.jwtSecret, {
+    const accessToken = sign({ sub: account.id, role: account.roleId }, env.jwtSecret, {
       expiresIn: '1d',
     });
 
